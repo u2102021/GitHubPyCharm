@@ -1,0 +1,226 @@
+<html>
+<head>
+<title>notebook.ipynb</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #bcbec4;}
+.s1 { color: #cf8e6d;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+.ls0 { height: 1px; border-width: 0; color: #43454a; background-color:#43454a}
+</style>
+</head>
+<body bgcolor="#191a1c">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+notebook.ipynb</font>
+</center></td></tr></table>
+<pre><span class="s0">#%% md 
+Data Description and EDA <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">pandas </span><span class="s1">as </span><span class="s0">pd</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+<span class="s1">import </span><span class="s0">matplotlib</span><span class="s2">.</span><span class="s0">pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">import </span><span class="s0">seaborn </span><span class="s1">as </span><span class="s0">sns</span>
+
+<span class="s3"># --- PART 1: GENERATE REALISTIC, CORRELATED DATA ---</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s4">&quot;Generating correlated synthetic data...&quot;</span><span class="s2">)</span>
+
+<span class="s0">np</span><span class="s2">.</span><span class="s0">random</span><span class="s2">.</span><span class="s0">seed</span><span class="s2">(</span><span class="s5">999</span><span class="s2">) </span><span class="s3"># Seed for reproducibility</span>
+<span class="s0">n_samples </span><span class="s2">= </span><span class="s5">1999</span>
+
+<span class="s3"># 1. Base Demographics</span>
+<span class="s0">ages </span><span class="s2">= </span><span class="s0">np</span><span class="s2">.</span><span class="s0">random</span><span class="s2">.</span><span class="s0">randint</span><span class="s2">(</span><span class="s5">18</span><span class="s2">, </span><span class="s5">80</span><span class="s2">, </span><span class="s0">size</span><span class="s2">=</span><span class="s0">n_samples</span><span class="s2">)</span>
+<span class="s0">gender </span><span class="s2">= </span><span class="s0">np</span><span class="s2">.</span><span class="s0">random</span><span class="s2">.</span><span class="s0">choice</span><span class="s2">([</span><span class="s4">'Male'</span><span class="s2">, </span><span class="s4">'Female'</span><span class="s2">], </span><span class="s0">size</span><span class="s2">=</span><span class="s0">n_samples</span><span class="s2">)</span>
+
+<span class="s3"># 2. Risk Habits (Correlated with Age)</span>
+<span class="s3"># Older people have a slightly higher probability of long-term habits</span>
+<span class="s0">smoker </span><span class="s2">= []</span>
+<span class="s0">betel </span><span class="s2">= []</span>
+<span class="s1">for </span><span class="s0">age </span><span class="s1">in </span><span class="s0">ages</span><span class="s2">:</span>
+    <span class="s0">prob_smoke </span><span class="s2">= </span><span class="s5">0.45 </span><span class="s1">if </span><span class="s0">age </span><span class="s2">&gt; </span><span class="s5">50 </span><span class="s1">else </span><span class="s5">0.25</span>
+    <span class="s0">prob_betel </span><span class="s2">= </span><span class="s5">0.40 </span><span class="s1">if </span><span class="s0">age </span><span class="s2">&gt; </span><span class="s5">50 </span><span class="s1">else </span><span class="s5">0.15</span>
+
+    <span class="s0">smoker</span><span class="s2">.</span><span class="s0">append</span><span class="s2">(</span><span class="s0">np</span><span class="s2">.</span><span class="s0">random</span><span class="s2">.</span><span class="s0">choice</span><span class="s2">([</span><span class="s5">0</span><span class="s2">, </span><span class="s5">1</span><span class="s2">], </span><span class="s0">p</span><span class="s2">=[</span><span class="s5">1</span><span class="s2">-</span><span class="s0">prob_smoke</span><span class="s2">, </span><span class="s0">prob_smoke</span><span class="s2">]))</span>
+    <span class="s0">betel</span><span class="s2">.</span><span class="s0">append</span><span class="s2">(</span><span class="s0">np</span><span class="s2">.</span><span class="s0">random</span><span class="s2">.</span><span class="s0">choice</span><span class="s2">([</span><span class="s5">0</span><span class="s2">, </span><span class="s5">1</span><span class="s2">], </span><span class="s0">p</span><span class="s2">=[</span><span class="s5">1</span><span class="s2">-</span><span class="s0">prob_betel</span><span class="s2">, </span><span class="s0">prob_betel</span><span class="s2">]))</span>
+
+<span class="s0">smoker </span><span class="s2">= </span><span class="s0">np</span><span class="s2">.</span><span class="s0">array</span><span class="s2">(</span><span class="s0">smoker</span><span class="s2">)</span>
+<span class="s0">betel </span><span class="s2">= </span><span class="s0">np</span><span class="s2">.</span><span class="s0">array</span><span class="s2">(</span><span class="s0">betel</span><span class="s2">)</span>
+
+<span class="s3"># 3. Lesion Size (Driven by Habits and Age)</span>
+<span class="s3"># Habits add significant size to the lesion (Simulating disease progression)</span>
+<span class="s0">lesion_size </span><span class="s2">= </span><span class="s0">np</span><span class="s2">.</span><span class="s0">random</span><span class="s2">.</span><span class="s0">normal</span><span class="s2">(</span><span class="s5">3.0</span><span class="s2">, </span><span class="s5">1.0</span><span class="s2">, </span><span class="s0">size</span><span class="s2">=</span><span class="s0">n_samples</span><span class="s2">) </span><span class="s3"># Base size</span>
+<span class="s0">lesion_size </span><span class="s2">+= (</span><span class="s0">smoker </span><span class="s2">* </span><span class="s5">3.5</span><span class="s2">) </span><span class="s3"># Smoking adds ~3.5mm</span>
+<span class="s0">lesion_size </span><span class="s2">+= (</span><span class="s0">betel </span><span class="s2">* </span><span class="s5">4.5</span><span class="s2">)  </span><span class="s3"># Betel adds ~4.5mm</span>
+<span class="s0">lesion_size </span><span class="s2">+= (</span><span class="s0">ages </span><span class="s2">* </span><span class="s5">0.05</span><span class="s2">)  </span><span class="s3"># Age adds a little size</span>
+<span class="s0">lesion_size </span><span class="s2">= </span><span class="s0">np</span><span class="s2">.</span><span class="s0">clip</span><span class="s2">(</span><span class="s0">lesion_size</span><span class="s2">, </span><span class="s5">1.0</span><span class="s2">, </span><span class="s5">15.0</span><span class="s2">) </span><span class="s3"># Clip to realistic bounds</span>
+
+<span class="s3"># 4. Brushing Force (Driven by Pain/Size)</span>
+<span class="s3"># Physics: Larger lesion = More Pain = Less Force applied</span>
+<span class="s0">force_n </span><span class="s2">= </span><span class="s5">4.0 </span><span class="s2">- (</span><span class="s0">lesion_size </span><span class="s2">* </span><span class="s5">0.15</span><span class="s2">) + </span><span class="s0">np</span><span class="s2">.</span><span class="s0">random</span><span class="s2">.</span><span class="s0">normal</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s5">0.2</span><span class="s2">, </span><span class="s0">size</span><span class="s2">=</span><span class="s0">n_samples</span><span class="s2">)</span>
+<span class="s0">force_n </span><span class="s2">= </span><span class="s0">np</span><span class="s2">.</span><span class="s0">clip</span><span class="s2">(</span><span class="s0">force_n</span><span class="s2">, </span><span class="s5">0.5</span><span class="s2">, </span><span class="s5">5.0</span><span class="s2">) </span><span class="s3"># Clip to realistic Newtons</span>
+
+<span class="s3"># 5. AI Confidence (Driven by Visibility/Size)</span>
+<span class="s3"># Vision: Larger lesion = Easier to see = Higher Confidence</span>
+<span class="s0">ai_conf </span><span class="s2">= </span><span class="s5">0.5 </span><span class="s2">+ (</span><span class="s0">lesion_size </span><span class="s2">* </span><span class="s5">0.03</span><span class="s2">) + </span><span class="s0">np</span><span class="s2">.</span><span class="s0">random</span><span class="s2">.</span><span class="s0">normal</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s5">0.05</span><span class="s2">, </span><span class="s0">size</span><span class="s2">=</span><span class="s0">n_samples</span><span class="s2">)</span>
+<span class="s0">ai_conf </span><span class="s2">= </span><span class="s0">np</span><span class="s2">.</span><span class="s0">clip</span><span class="s2">(</span><span class="s0">ai_conf</span><span class="s2">, </span><span class="s5">0.4</span><span class="s2">, </span><span class="s5">0.99</span><span class="s2">)</span>
+
+<span class="s3"># Create DataFrame</span>
+<span class="s0">df </span><span class="s2">= </span><span class="s0">pd</span><span class="s2">.</span><span class="s0">DataFrame</span><span class="s2">({</span>
+    <span class="s4">'Session_ID'</span><span class="s2">: [</span><span class="s4">f'S</span><span class="s1">{</span><span class="s0">i</span><span class="s1">:</span><span class="s4">04d</span><span class="s1">}</span><span class="s4">' </span><span class="s1">for </span><span class="s0">i </span><span class="s1">in </span><span class="s0">range</span><span class="s2">(</span><span class="s0">n_samples</span><span class="s2">)],</span>
+    <span class="s4">'Age'</span><span class="s2">: </span><span class="s0">ages</span><span class="s2">,</span>
+    <span class="s4">'Gender'</span><span class="s2">: </span><span class="s0">gender</span><span class="s2">,</span>
+    <span class="s4">'Force_N'</span><span class="s2">: </span><span class="s0">force_n</span><span class="s2">,</span>
+    <span class="s4">'Smoker'</span><span class="s2">: </span><span class="s0">smoker</span><span class="s2">,</span>
+    <span class="s4">'Betel_Nut'</span><span class="s2">: </span><span class="s0">betel</span><span class="s2">,</span>
+    <span class="s4">'Lesion_Size_mm'</span><span class="s2">: </span><span class="s0">lesion_size</span><span class="s2">,</span>
+    <span class="s4">'AI_Confidence'</span><span class="s2">: </span><span class="s0">ai_conf</span>
+<span class="s2">})</span>
+
+<span class="s3"># 6. Assign Risk Category (Strictly based on the data above)</span>
+<span class="s1">def </span><span class="s0">assign_risk</span><span class="s2">(</span><span class="s0">row</span><span class="s2">):</span>
+    <span class="s3"># Clinical logic: Large lesions or double habits = High Risk</span>
+    <span class="s1">if </span><span class="s0">row</span><span class="s2">[</span><span class="s4">'Lesion_Size_mm'</span><span class="s2">] &gt; </span><span class="s5">9.0 </span><span class="s1">or </span><span class="s2">(</span><span class="s0">row</span><span class="s2">[</span><span class="s4">'Smoker'</span><span class="s2">] == </span><span class="s5">1 </span><span class="s1">and </span><span class="s0">row</span><span class="s2">[</span><span class="s4">'Betel_Nut'</span><span class="s2">] == </span><span class="s5">1</span><span class="s2">):</span>
+        <span class="s1">return </span><span class="s4">'High-Risk'</span>
+    <span class="s1">elif </span><span class="s0">row</span><span class="s2">[</span><span class="s4">'Lesion_Size_mm'</span><span class="s2">] &gt; </span><span class="s5">5.0</span><span class="s2">:</span>
+        <span class="s1">return </span><span class="s4">'Suspicious'</span>
+    <span class="s1">else</span><span class="s2">:</span>
+        <span class="s1">return </span><span class="s4">'Benign'</span>
+
+<span class="s0">df</span><span class="s2">[</span><span class="s4">'Risk_Category'</span><span class="s2">] = </span><span class="s0">df</span><span class="s2">.</span><span class="s0">apply</span><span class="s2">(</span><span class="s0">assign_risk</span><span class="s2">, </span><span class="s0">axis</span><span class="s2">=</span><span class="s5">1</span><span class="s2">)</span>
+
+<span class="s0">print</span><span class="s2">(</span><span class="s4">&quot;Data generation complete. Relationships established.&quot;</span><span class="s2">)</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s0">df</span><span class="s2">[[</span><span class="s4">'Age'</span><span class="s2">, </span><span class="s4">'Lesion_Size_mm'</span><span class="s2">, </span><span class="s4">'Force_N'</span><span class="s2">, </span><span class="s4">'AI_Confidence'</span><span class="s2">]].</span><span class="s0">describe</span><span class="s2">())</span>
+
+
+<span class="s3"># --- PART 2: VISUALIZATIONS (ALL 4 FIGURES) ---</span>
+<span class="s0">sns</span><span class="s2">.</span><span class="s0">set</span><span class="s2">(</span><span class="s0">style</span><span class="s2">=</span><span class="s4">&quot;whitegrid&quot;</span><span class="s2">)</span>
+
+<span class="s3"># FIGURE 1: Target Variable Distribution (Restored)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">figure</span><span class="s2">(</span><span class="s0">figsize</span><span class="s2">=(</span><span class="s5">8</span><span class="s2">, </span><span class="s5">5</span><span class="s2">))</span>
+<span class="s0">sns</span><span class="s2">.</span><span class="s0">countplot</span><span class="s2">(</span><span class="s0">x</span><span class="s2">=</span><span class="s4">'Risk_Category'</span><span class="s2">, </span><span class="s0">hue</span><span class="s2">=</span><span class="s4">'Risk_Category'</span><span class="s2">, </span><span class="s0">data</span><span class="s2">=</span><span class="s0">df</span><span class="s2">, </span><span class="s0">palette</span><span class="s2">=</span><span class="s4">'viridis'</span><span class="s2">, </span><span class="s0">order</span><span class="s2">=[</span><span class="s4">'Benign'</span><span class="s2">, </span><span class="s4">'Suspicious'</span><span class="s2">, </span><span class="s4">'High-Risk'</span><span class="s2">], </span><span class="s0">legend</span><span class="s2">=</span><span class="s1">False</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">title</span><span class="s2">(</span><span class="s4">'Distribution of Risk Categories (Target Variable)'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">xlabel</span><span class="s2">(</span><span class="s4">'Risk Category'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">ylabel</span><span class="s2">(</span><span class="s4">'Count of Patients'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">tight_layout</span><span class="s2">()</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">show</span><span class="s2">()</span>
+
+<span class="s3"># FIGURE 2: Correlation Heatmap (Updated with Logic)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">figure</span><span class="s2">(</span><span class="s0">figsize</span><span class="s2">=(</span><span class="s5">10</span><span class="s2">, </span><span class="s5">8</span><span class="s2">))</span>
+<span class="s3"># Map 'Risk_Category' to numbers just for correlation</span>
+<span class="s0">df</span><span class="s2">[</span><span class="s4">'Risk_Score'</span><span class="s2">] = </span><span class="s0">df</span><span class="s2">[</span><span class="s4">'Risk_Category'</span><span class="s2">].</span><span class="s0">map</span><span class="s2">({</span><span class="s4">'Benign'</span><span class="s2">: </span><span class="s5">0</span><span class="s2">, </span><span class="s4">'Suspicious'</span><span class="s2">: </span><span class="s5">1</span><span class="s2">, </span><span class="s4">'High-Risk'</span><span class="s2">: </span><span class="s5">2</span><span class="s2">})</span>
+<span class="s0">numeric_cols </span><span class="s2">= [</span><span class="s4">'Age'</span><span class="s2">, </span><span class="s4">'Lesion_Size_mm'</span><span class="s2">, </span><span class="s4">'Force_N'</span><span class="s2">, </span><span class="s4">'AI_Confidence'</span><span class="s2">, </span><span class="s4">'Smoker'</span><span class="s2">, </span><span class="s4">'Betel_Nut'</span><span class="s2">, </span><span class="s4">'Risk_Score'</span><span class="s2">]</span>
+<span class="s0">corr </span><span class="s2">= </span><span class="s0">df</span><span class="s2">[</span><span class="s0">numeric_cols</span><span class="s2">].</span><span class="s0">corr</span><span class="s2">()</span>
+
+<span class="s0">sns</span><span class="s2">.</span><span class="s0">heatmap</span><span class="s2">(</span><span class="s0">corr</span><span class="s2">, </span><span class="s0">annot</span><span class="s2">=</span><span class="s1">True</span><span class="s2">, </span><span class="s0">cmap</span><span class="s2">=</span><span class="s4">'coolwarm'</span><span class="s2">, </span><span class="s0">fmt</span><span class="s2">=</span><span class="s4">&quot;.2f&quot;</span><span class="s2">, </span><span class="s0">center</span><span class="s2">=</span><span class="s5">0</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">title</span><span class="s2">(</span><span class="s4">'Correlation Matrix (Validated Physics/Biology)'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">tight_layout</span><span class="s2">()</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">show</span><span class="s2">()</span>
+
+<span class="s3"># FIGURE 3: AI Confidence vs Risk (Restored &amp; Improved)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">figure</span><span class="s2">(</span><span class="s0">figsize</span><span class="s2">=(</span><span class="s5">8</span><span class="s2">, </span><span class="s5">6</span><span class="s2">))</span>
+<span class="s0">sns</span><span class="s2">.</span><span class="s0">boxplot</span><span class="s2">(</span><span class="s0">x</span><span class="s2">=</span><span class="s4">'Risk_Category'</span><span class="s2">, </span><span class="s0">y</span><span class="s2">=</span><span class="s4">'AI_Confidence'</span><span class="s2">, </span><span class="s0">hue</span><span class="s2">=</span><span class="s4">'Risk_Category'</span><span class="s2">, </span><span class="s0">data</span><span class="s2">=</span><span class="s0">df</span><span class="s2">, </span><span class="s0">palette</span><span class="s2">=</span><span class="s4">'Set2'</span><span class="s2">, </span><span class="s0">order</span><span class="s2">=[</span><span class="s4">'Benign'</span><span class="s2">, </span><span class="s4">'Suspicious'</span><span class="s2">, </span><span class="s4">'High-Risk'</span><span class="s2">], </span><span class="s0">legend</span><span class="s2">=</span><span class="s1">False</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">title</span><span class="s2">(</span><span class="s4">'AI Model Confidence vs. Clinical Risk'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">ylabel</span><span class="s2">(</span><span class="s4">'AI Confidence Score (0-1)'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">tight_layout</span><span class="s2">()</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">show</span><span class="s2">()</span>
+
+<span class="s3"># FIGURE 4: Risk Factors (Restored &amp; Improved)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">figure</span><span class="s2">(</span><span class="s0">figsize</span><span class="s2">=(</span><span class="s5">10</span><span class="s2">, </span><span class="s5">5</span><span class="s2">))</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">subplot</span><span class="s2">(</span><span class="s5">1</span><span class="s2">, </span><span class="s5">2</span><span class="s2">, </span><span class="s5">1</span><span class="s2">)</span>
+<span class="s0">sns</span><span class="s2">.</span><span class="s0">barplot</span><span class="s2">(</span><span class="s0">x</span><span class="s2">=</span><span class="s4">'Risk_Category'</span><span class="s2">, </span><span class="s0">y</span><span class="s2">=</span><span class="s4">'Betel_Nut'</span><span class="s2">, </span><span class="s0">hue</span><span class="s2">=</span><span class="s4">'Risk_Category'</span><span class="s2">, </span><span class="s0">data</span><span class="s2">=</span><span class="s0">df</span><span class="s2">, </span><span class="s0">palette</span><span class="s2">=</span><span class="s4">'Oranges'</span><span class="s2">, </span><span class="s0">order</span><span class="s2">=[</span><span class="s4">'Benign'</span><span class="s2">, </span><span class="s4">'Suspicious'</span><span class="s2">, </span><span class="s4">'High-Risk'</span><span class="s2">], </span><span class="s0">errorbar</span><span class="s2">=</span><span class="s1">None</span><span class="s2">, </span><span class="s0">legend</span><span class="s2">=</span><span class="s1">False</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">title</span><span class="s2">(</span><span class="s4">'Betel Nut Usage by Risk Group'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">ylabel</span><span class="s2">(</span><span class="s4">'Proportion of Users'</span><span class="s2">)</span>
+
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">subplot</span><span class="s2">(</span><span class="s5">1</span><span class="s2">, </span><span class="s5">2</span><span class="s2">, </span><span class="s5">2</span><span class="s2">)</span>
+<span class="s0">sns</span><span class="s2">.</span><span class="s0">barplot</span><span class="s2">(</span><span class="s0">x</span><span class="s2">=</span><span class="s4">'Risk_Category'</span><span class="s2">, </span><span class="s0">y</span><span class="s2">=</span><span class="s4">'Smoker'</span><span class="s2">, </span><span class="s0">hue</span><span class="s2">=</span><span class="s4">'Risk_Category'</span><span class="s2">, </span><span class="s0">data</span><span class="s2">=</span><span class="s0">df</span><span class="s2">, </span><span class="s0">palette</span><span class="s2">=</span><span class="s4">'Reds'</span><span class="s2">, </span><span class="s0">order</span><span class="s2">=[</span><span class="s4">'Benign'</span><span class="s2">, </span><span class="s4">'Suspicious'</span><span class="s2">, </span><span class="s4">'High-Risk'</span><span class="s2">], </span><span class="s0">errorbar</span><span class="s2">=</span><span class="s1">None</span><span class="s2">, </span><span class="s0">legend</span><span class="s2">=</span><span class="s1">False</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">title</span><span class="s2">(</span><span class="s4">'Smoking Habit by Risk Group'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">ylabel</span><span class="s2">(</span><span class="s4">'Proportion of Users'</span><span class="s2">)</span>
+
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">tight_layout</span><span class="s2">()</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">show</span><span class="s2">()</span><hr class="ls0"><span class="s0">#%% md 
+Regression and Clustering <hr class="ls0">#%% 
+</span><span class="s1">from </span><span class="s0">sklearn</span><span class="s2">.</span><span class="s0">model_selection </span><span class="s1">import </span><span class="s0">train_test_split</span>
+<span class="s1">from </span><span class="s0">sklearn</span><span class="s2">.</span><span class="s0">linear_model </span><span class="s1">import </span><span class="s0">LinearRegression</span>
+<span class="s1">from </span><span class="s0">sklearn</span><span class="s2">.</span><span class="s0">cluster </span><span class="s1">import </span><span class="s0">KMeans</span>
+<span class="s1">from </span><span class="s0">sklearn</span><span class="s2">.</span><span class="s0">preprocessing </span><span class="s1">import </span><span class="s0">StandardScaler</span>
+<span class="s1">from </span><span class="s0">sklearn</span><span class="s2">.</span><span class="s0">metrics </span><span class="s1">import </span><span class="s0">mean_squared_error</span><span class="s2">, </span><span class="s0">r2_score</span>
+
+<span class="s0">print</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s1">\n</span><span class="s4">&quot; </span><span class="s2">+ </span><span class="s4">&quot;=&quot;</span><span class="s2">*</span><span class="s5">40</span><span class="s2">)</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s4">&quot;      5.0 AI SOLUTION EXECUTION      &quot;</span><span class="s2">)</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s4">&quot;=&quot;</span><span class="s2">*</span><span class="s5">40</span><span class="s2">)</span>
+
+<span class="s3"># --- MODEL 1: LINEAR REGRESSION (Predicting Lesion Size) ---</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s4">&quot;--- 1. Training Regression Model ---&quot;</span><span class="s2">)</span>
+
+<span class="s3"># 1. Prepare Data</span>
+<span class="s3"># We want to predict 'Lesion_Size_mm' using Age, Habits, and Force</span>
+<span class="s0">X_reg </span><span class="s2">= </span><span class="s0">df</span><span class="s2">[[</span><span class="s4">'Age'</span><span class="s2">, </span><span class="s4">'Smoker'</span><span class="s2">, </span><span class="s4">'Betel_Nut'</span><span class="s2">, </span><span class="s4">'Force_N'</span><span class="s2">]]</span>
+<span class="s0">y_reg </span><span class="s2">= </span><span class="s0">df</span><span class="s2">[</span><span class="s4">'Lesion_Size_mm'</span><span class="s2">]</span>
+
+<span class="s3"># Split into training and testing sets (80% train, 20% test)</span>
+<span class="s0">X_train</span><span class="s2">, </span><span class="s0">X_test</span><span class="s2">, </span><span class="s0">y_train</span><span class="s2">, </span><span class="s0">y_test </span><span class="s2">= </span><span class="s0">train_test_split</span><span class="s2">(</span><span class="s0">X_reg</span><span class="s2">, </span><span class="s0">y_reg</span><span class="s2">, </span><span class="s0">test_size</span><span class="s2">=</span><span class="s5">0.2</span><span class="s2">, </span><span class="s0">random_state</span><span class="s2">=</span><span class="s5">42</span><span class="s2">)</span>
+
+<span class="s3"># 2. Train Model</span>
+<span class="s0">reg_model </span><span class="s2">= </span><span class="s0">LinearRegression</span><span class="s2">()</span>
+<span class="s0">reg_model</span><span class="s2">.</span><span class="s0">fit</span><span class="s2">(</span><span class="s0">X_train</span><span class="s2">, </span><span class="s0">y_train</span><span class="s2">)</span>
+
+<span class="s3"># 3. Evaluate</span>
+<span class="s0">y_pred </span><span class="s2">= </span><span class="s0">reg_model</span><span class="s2">.</span><span class="s0">predict</span><span class="s2">(</span><span class="s0">X_test</span><span class="s2">)</span>
+<span class="s0">r2 </span><span class="s2">= </span><span class="s0">r2_score</span><span class="s2">(</span><span class="s0">y_test</span><span class="s2">, </span><span class="s0">y_pred</span><span class="s2">)</span>
+<span class="s0">mse </span><span class="s2">= </span><span class="s0">mean_squared_error</span><span class="s2">(</span><span class="s0">y_test</span><span class="s2">, </span><span class="s0">y_pred</span><span class="s2">)</span>
+
+<span class="s0">print</span><span class="s2">(</span><span class="s4">f&quot;Regression Performance:&quot;</span><span class="s2">)</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s4">f&quot;R-Squared (Accuracy): </span><span class="s1">{</span><span class="s0">r2</span><span class="s1">:</span><span class="s4">.4f</span><span class="s1">}</span><span class="s4">&quot;</span><span class="s2">)</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s4">f&quot;Mean Squared Error: </span><span class="s1">{</span><span class="s0">mse</span><span class="s1">:</span><span class="s4">.4f</span><span class="s1">}</span><span class="s4">&quot;</span><span class="s2">)</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s4">f&quot;Coefficients (Age, Smoke, Betel, Force): </span><span class="s1">{</span><span class="s0">reg_model</span><span class="s2">.</span><span class="s0">coef_</span><span class="s1">}</span><span class="s4">&quot;</span><span class="s2">)</span>
+
+<span class="s3"># FIGURE 5: Regression Results (Actual vs Predicted)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">figure</span><span class="s2">(</span><span class="s0">figsize</span><span class="s2">=(</span><span class="s5">8</span><span class="s2">, </span><span class="s5">6</span><span class="s2">))</span>
+<span class="s0">sns</span><span class="s2">.</span><span class="s0">scatterplot</span><span class="s2">(</span><span class="s0">x</span><span class="s2">=</span><span class="s0">y_test</span><span class="s2">, </span><span class="s0">y</span><span class="s2">=</span><span class="s0">y_pred</span><span class="s2">, </span><span class="s0">alpha</span><span class="s2">=</span><span class="s5">0.6</span><span class="s2">, </span><span class="s0">color</span><span class="s2">=</span><span class="s4">'blue'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">plot</span><span class="s2">([</span><span class="s0">y_test</span><span class="s2">.</span><span class="s0">min</span><span class="s2">(), </span><span class="s0">y_test</span><span class="s2">.</span><span class="s0">max</span><span class="s2">()], [</span><span class="s0">y_test</span><span class="s2">.</span><span class="s0">min</span><span class="s2">(), </span><span class="s0">y_test</span><span class="s2">.</span><span class="s0">max</span><span class="s2">()], </span><span class="s4">'r--'</span><span class="s2">, </span><span class="s0">lw</span><span class="s2">=</span><span class="s5">2</span><span class="s2">) </span><span class="s3"># Perfect prediction line</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">xlabel</span><span class="s2">(</span><span class="s4">'Actual Lesion Size (mm)'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">ylabel</span><span class="s2">(</span><span class="s4">'Predicted Lesion Size (mm)'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">title</span><span class="s2">(</span><span class="s4">f'Regression: Predicting Lesion Severity (R2=</span><span class="s1">{</span><span class="s0">r2</span><span class="s1">:</span><span class="s4">.2f</span><span class="s1">}</span><span class="s4">)'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">tight_layout</span><span class="s2">()</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">show</span><span class="s2">()</span>
+
+
+<span class="s3"># --- MODEL 2: K-MEANS CLUSTERING (Patient Segmentation) ---</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s1">\n</span><span class="s4">--- 2. Training Clustering Model ---&quot;</span><span class="s2">)</span>
+
+<span class="s3"># 1. Prepare Data for Clustering</span>
+<span class="s3"># We use Age, Size, and Force to find &quot;User Types&quot;</span>
+<span class="s0">cluster_features </span><span class="s2">= </span><span class="s0">df</span><span class="s2">[[</span><span class="s4">'Age'</span><span class="s2">, </span><span class="s4">'Lesion_Size_mm'</span><span class="s2">, </span><span class="s4">'Force_N'</span><span class="s2">]]</span>
+
+<span class="s3"># Standardize data (Important for K-Means so Age doesn't dominate Force)</span>
+<span class="s0">scaler </span><span class="s2">= </span><span class="s0">StandardScaler</span><span class="s2">()</span>
+<span class="s0">X_scaled </span><span class="s2">= </span><span class="s0">scaler</span><span class="s2">.</span><span class="s0">fit_transform</span><span class="s2">(</span><span class="s0">cluster_features</span><span class="s2">)</span>
+
+<span class="s3"># 2. Train K-Means (k=3 for Low, Medium, High risk profiles)</span>
+<span class="s0">kmeans </span><span class="s2">= </span><span class="s0">KMeans</span><span class="s2">(</span><span class="s0">n_clusters</span><span class="s2">=</span><span class="s5">3</span><span class="s2">, </span><span class="s0">random_state</span><span class="s2">=</span><span class="s5">42</span><span class="s2">, </span><span class="s0">n_init</span><span class="s2">=</span><span class="s5">10</span><span class="s2">)</span>
+<span class="s0">df</span><span class="s2">[</span><span class="s4">'Cluster'</span><span class="s2">] = </span><span class="s0">kmeans</span><span class="s2">.</span><span class="s0">fit_predict</span><span class="s2">(</span><span class="s0">X_scaled</span><span class="s2">)</span>
+
+<span class="s3"># 3. Analyze Clusters (Print profiles)</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s4">&quot;Cluster Profiles (Mean Values):&quot;</span><span class="s2">)</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s0">df</span><span class="s2">.</span><span class="s0">groupby</span><span class="s2">(</span><span class="s4">'Cluster'</span><span class="s2">)[[</span><span class="s4">'Age'</span><span class="s2">, </span><span class="s4">'Lesion_Size_mm'</span><span class="s2">, </span><span class="s4">'Force_N'</span><span class="s2">, </span><span class="s4">'Smoker'</span><span class="s2">, </span><span class="s4">'Betel_Nut'</span><span class="s2">]].</span><span class="s0">mean</span><span class="s2">())</span>
+
+<span class="s3"># FIGURE 6: Clustering Results</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">figure</span><span class="s2">(</span><span class="s0">figsize</span><span class="s2">=(</span><span class="s5">10</span><span class="s2">, </span><span class="s5">6</span><span class="s2">))</span>
+<span class="s0">sns</span><span class="s2">.</span><span class="s0">scatterplot</span><span class="s2">(</span><span class="s0">x</span><span class="s2">=</span><span class="s4">'Age'</span><span class="s2">, </span><span class="s0">y</span><span class="s2">=</span><span class="s4">'Lesion_Size_mm'</span><span class="s2">, </span><span class="s0">hue</span><span class="s2">=</span><span class="s4">'Cluster'</span><span class="s2">, </span><span class="s0">data</span><span class="s2">=</span><span class="s0">df</span><span class="s2">, </span><span class="s0">palette</span><span class="s2">=</span><span class="s4">'deep'</span><span class="s2">, </span><span class="s0">s</span><span class="s2">=</span><span class="s5">60</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">title</span><span class="s2">(</span><span class="s4">'K-Means Clustering: User Risk Segmentation'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">xlabel</span><span class="s2">(</span><span class="s4">'Patient Age'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">ylabel</span><span class="s2">(</span><span class="s4">'Lesion Size (mm)'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">legend</span><span class="s2">(</span><span class="s0">title</span><span class="s2">=</span><span class="s4">'User Segment'</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">tight_layout</span><span class="s2">()</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">show</span><span class="s2">()--- </span><span class="s5">2. </span><span class="s0">Training Clustering Model </span><span class="s2">---</span>
+<span class="s0">Cluster Profiles </span><span class="s2">(</span><span class="s0">Mean Values</span><span class="s2">):</span>
+               <span class="s0">Age  Lesion_Size_mm   Force_N    Smoker  Betel_Nut</span>
+<span class="s0">Cluster</span>
+<span class="s5">0        61.352254       11.742365  2.205843  0.602671   0.716194</span>
+<span class="s5">1        31.733750        5.323545  3.201896  0.163750   0.057500</span>
+<span class="s5">2        58.323333        7.298526  2.915635  0.325000   0.096667</span></pre>
+</body>
+</html>
